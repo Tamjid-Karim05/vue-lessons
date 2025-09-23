@@ -1,11 +1,15 @@
 <script setup>
 import { ref, computed } from 'vue';
+
 const props = defineProps({
   lessons: Array,
 });
+const emit = defineEmits(['addToCart']);
+
 const sortAttribute = ref('topic');
 const sortOrder = ref('ascending');
 const searchQuery = ref('');
+
 const filteredLessons = computed(() => {
   if (!searchQuery.value) {
     return props.lessons;
@@ -18,6 +22,7 @@ const filteredLessons = computed(() => {
     lesson.space.toString().includes(query)
   );
 });
+
 const sortedLessons = computed(() => {
   const sorted = [...filteredLessons.value];
   sorted.sort((a, b) => {
@@ -35,6 +40,7 @@ const sortedLessons = computed(() => {
   return sorted;
 });
 </script>
+
 <template>
   <div class="d-flex justify-content-center align-items-center gap-3 mb-4">
     <div class="d-flex align-items-center">
@@ -67,6 +73,7 @@ const sortedLessons = computed(() => {
           <p class="card-text"><strong>Location:</strong> {{ lesson.location }}</p>
           <p class="card-text"><strong>Price:</strong> ${{ lesson.price }}</p>
           <p class="card-text"><strong>Spaces:</strong> {{ lesson.space }}</p>
+          <button class="btn btn-success mt-2" @click="$emit('addToCart', lesson)" :disabled="lesson.space === 0">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -74,8 +81,8 @@ const sortedLessons = computed(() => {
 </template>
 <style scoped>
 .card:hover {
-  transform: translateY(-5px); 
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
-  transition: transform 0.3s ease, box-shadow 0.3s ease; 
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 </style>
