@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import Lessons from './components/Lessons.vue';
+import Cart from './components/Cart.vue';
 
 const lessons = ref([
   { _id: '1', topic: 'Math', location: 'Hendon', price: 100, space: 5, image: 'https://placehold.co/100x100?text=Math' },
@@ -14,7 +15,9 @@ const lessons = ref([
   { _id: '9', topic: 'Music', location: 'Camden', price: 130, space: 5, image: 'https://placehold.co/100x100?text=Music' },
   { _id: '10', topic: 'PE', location: 'Islington', price: 60, space: 5, image: 'https://placehold.co/100x100?text=PE' },
 ]);
+
 const cart = ref([]);
+const showLessons = ref(true);
 
 function addToCart(lesson) {
   if (lesson.space > 0) {
@@ -27,15 +30,31 @@ function addToCart(lesson) {
     lesson.space--;
   }
 }
+
+function removeFromCart(cartItem) {
+  const index = cart.value.indexOf(cartItem);
+  if (index > -1) {
+    cart.value.splice(index, 1);
+    const lesson = lessons.value.find(l => l._id === cartItem._id);
+    if (lesson) {
+      lesson.space += cartItem.quantity;
+    }
+  }
+}
 </script>
 
 <template>
   <div class="container-fluid bg-light min-vh-100">
     <header class="d-flex justify-content-between align-items-center bg-white p-3 shadow-sm sticky-top">
       <h1 class="h3 mb-0">Lessons</h1>
+      <button class="btn btn-primary" @click="showLessons = !showLessons">
+        <span v-if="showLessons">Show Cart ({{ cart.length }})</span>
+        <span v-else>Back to Lessons</span>
+      </button>
     </header>
     <main class="container py-4">
-      <Lessons :lessons="lessons" @addToCart="addToCart" />
+      <Lessons v-if="showLessons" :lessons="lessons" @addToCart="addToCart" />
+      <Cart v-else :cart="cart" @removeFromCart="removeFromCart" />
     </main>
   </div>
 </template>
