@@ -14,14 +14,28 @@ const lessons = ref([
   { _id: '9', topic: 'Music', location: 'Camden', price: 130, space: 5, image: 'https://placehold.co/100x100?text=Music' },
   { _id: '10', topic: 'PE', location: 'Islington', price: 60, space: 5, image: 'https://placehold.co/100x100?text=PE' },
 ]);
+const cart = ref([]);
+
+function addToCart(lesson) {
+  if (lesson.space > 0) {
+    const cartItem = cart.value.find(item => item._id === lesson._id);
+    if (cartItem) {
+      cartItem.quantity++;
+    } else {
+      cart.value.push({ ...lesson, quantity: 1 });
+    }
+    lesson.space--;
+  }
+}
 </script>
+
 <template>
   <div class="container-fluid bg-light min-vh-100">
     <header class="d-flex justify-content-between align-items-center bg-white p-3 shadow-sm sticky-top">
       <h1 class="h3 mb-0">Lessons</h1>
     </header>
     <main class="container py-4">
-      <Lessons :lessons="lessons" />
+      <Lessons :lessons="lessons" @addToCart="addToCart" />
     </main>
   </div>
 </template>
