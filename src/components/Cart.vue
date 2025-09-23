@@ -1,8 +1,39 @@
 <script setup>
+import { ref, computed } from 'vue';
+
 const props = defineProps({
   cart: Array,
 });
-const emit = defineEmits(['removeFromCart']);
+const emit = defineEmits(['removeFromCart', 'checkout']);
+
+const name = ref('');
+const phoneNumber = ref('');
+const checkoutMessage = ref('');
+
+const isFormValid = computed(() => {
+  const nameRegex = /^[A-Za-z\s]+$/;
+  const phoneRegex = /^[0-9]+$/;
+  return nameRegex.test(name.value) && phoneRegex.test(phoneNumber.value);
+});
+
+function checkout() {
+  if (isFormValid.value) {
+    const orderDetails = {
+      name: name.value,
+      phoneNumber: phoneNumber.value,
+      items: props.cart.map(item => ({ id: item._id, quantity: item.quantity })),
+    };
+    emit('checkout', orderDetails);
+    
+    name.value = '';
+    phoneNumber.value = '';
+    checkoutMessage.value = 'Order submitted successfully!';
+    
+    setTimeout(() => {
+      checkoutMessage.value = '';
+    }, 5000);
+  }
+}
 </script>
 
 <template>
@@ -24,6 +55,24 @@ const emit = defineEmits(['removeFromCart']);
           <p class="mb-0">Price: ${{ item.price * item.quantity }}</p>
         </div>
         <button class="btn btn-danger" @click="$emit('removeFromCart', item)">Remove</button>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h3 class="h5">Checkout</h3>
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" id="name" class="form-control" v-model="name" />
+      </div>
+      <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input type="text" id="phone" class="form-control" v-model="phoneNumber" />
+      </div>
+      <button class="btn btn-success w-100" @click="checkout" :disabled="!isFormValid">
+        Checkout
+      </button>
+      <div v-if="checkoutMessage" class="mt-3 alert alert-success">
+        {{ checkoutMessage }}
       </div>
     </div>
   </div>

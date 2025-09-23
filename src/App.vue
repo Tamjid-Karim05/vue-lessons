@@ -41,6 +41,11 @@ function removeFromCart(cartItem) {
     }
   }
 }
+
+function checkout(orderDetails) {
+    console.log('Order submitted:', orderDetails);
+    cart.value = [];
+}
 </script>
 
 <template>
@@ -54,7 +59,7 @@ function removeFromCart(cartItem) {
     </header>
     <main class="container py-4">
       <Lessons v-if="showLessons" :lessons="lessons" @addToCart="addToCart" />
-      <Cart v-else :cart="cart" @removeFromCart="removeFromCart" />
+      <Cart v-else :cart="cart" @removeFromCart="removeFromCart" @checkout="checkout" />
     </main>
   </div>
 </template>
