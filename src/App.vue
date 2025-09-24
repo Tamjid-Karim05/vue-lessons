@@ -13,7 +13,7 @@ const lessons = ref([
   { _id: '6', topic: 'Art', location: 'Finchley', price: 75, space: 5, image: '/images/art.jpg' },
   { _id: '7', topic: 'History', location: 'Wembley', price: 90, space: 5, image: '/images/history.jpg' },
   { _id: '8', topic: 'Geography', location: 'Harrow', price: 85, space: 5, image: '/images/geography.jpg' },
-  { _id: '9', topic: 'Music', location: 'Camden', price: 130, space: 5, image: '/images/music.jpg' },
+  { _id: '9', topic: 'Music', location: 'Camden', price: 130, space: 5, image: '/images/music.png '},
   { _id: '10', topic: 'PE', location: 'Islington', price: 60, space: 5, image: '/images/pe.jpg' },
 ]);
 
