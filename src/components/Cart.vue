@@ -37,7 +37,7 @@ function checkout() {
 </script>
 
 <template>
-  <div class="card p-4 shadow-sm">
+  <div class="card p-4 shadow">
     <h2 class="h4 d-flex align-items-center mb-3">
       <img src="/images/cart-icon.png" alt="Shopping Cart" style="width: 30px; height: 30px; margin-right: 10px;" />
       Shopping Cart
@@ -54,7 +54,7 @@ function checkout() {
           <p class="mb-1">Quantity: {{ item.quantity }}</p>
           <p class="mb-0">Price: ${{ item.price * item.quantity }}</p>
         </div>
-        <button class="btn btn-danger" @click="$emit('removeFromCart', item)">Remove</button>
+        <button class="btn btn-primary" @click="$emit('removeFromCart', item)">Remove</button>
       </div>
     </div>
     
@@ -68,7 +68,7 @@ function checkout() {
         <label for="phone" class="form-label">Phone Number</label>
         <input type="text" id="phone" class="form-control" v-model="phoneNumber" />
       </div>
-      <button class="btn btn-success w-100" @click="checkout" :disabled="!isFormValid">
+      <button class="btn btn-primary w-100" @click="checkout" :disabled="!isFormValid">
         Checkout
       </button>
       <div v-if="checkoutMessage" class="mt-3 alert alert-success">

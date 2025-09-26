@@ -66,7 +66,7 @@ const sortedLessons = computed(() => {
   </div>
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     <div class="col" v-for="lesson in sortedLessons" :key="lesson._id">
-      <div class="card h-100 shadow-sm text-center">
+      <div class="card h-100 shadow text-center">
         <div class="image-container">
           <img :src="lesson.image" :alt="lesson.topic" class="card-img-top mx-auto mt-3 lesson-image" />
         </div>
@@ -75,12 +75,13 @@ const sortedLessons = computed(() => {
           <p class="card-text"><strong>Location:</strong> {{ lesson.location }}</p>
           <p class="card-text"><strong>Price:</strong> ${{ lesson.price }}</p>
           <p class="card-text"><strong>Spaces:</strong> {{ lesson.space }}</p>
-          <button class="btn btn-success mt-2" @click="$emit('addToCart', lesson)" :disabled="lesson.space === 0">Add to Cart</button>
+          <button class="btn btn-primary mt-2" @click="$emit('addToCart', lesson)" :disabled="lesson.space === 0">Add to Cart</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <style scoped>
 .image-container {
   width: 100%;
