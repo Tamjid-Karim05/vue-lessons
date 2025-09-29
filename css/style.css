@@ -1,0 +1,96 @@
+/* Global styles for a modern look */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+  --primary-color: #4A90E2;
+  --text-color: #4A4A4A;
+  --bg-color: #F4F7F6;
+  --card-bg: #FFFFFF;
+  --border-radius: 8px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+#app-container {
+  min-height: 100vh;
+}
+
+.app-header {
+  background-color: var(--card-bg);
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.btn-primary:hover {
+  background-color: #357ABD;
+  border-color: #357ABD;
+  transform: translateY(-2px);
+}
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.controls-bar {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  border: none;
+}
+.lesson-card {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+.lesson-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+}
+.lesson-card-img-container {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+.lesson-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.lesson-card:hover .lesson-card-img {
+  transform: scale(1.05);
+}
+.lesson-price-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1rem;
+  padding: 0.5em 0.75em;
+}
+.card-body {
+  padding: 1.5rem;
+}
+.empty-cart-icon {
+  font-size: 5rem;
+  color: #e0e0e0;
+}
+
