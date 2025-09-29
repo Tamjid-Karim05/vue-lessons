@@ -1,20 +1,13 @@
-import { fileURLToPath, URL } from 'node:url'
-
+// vite.config.js
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
+// ... other imports
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  base: './', // MOVED: This line must be at the top level
+  base: '/vue-app/', // Use your repository name here
   plugins: [
     vue(),
-    vueDevTools(),
+    //... other plugins
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-    // REMOVED: The 'base' property does not belong in here
-  },
+  // ... resolve settings
 })
