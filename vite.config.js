@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue'
 // ... other imports
 
 export default defineConfig({
-  base: '/vue-app/', // Use your repository name here
+  base: '/vue-lessons/', // Use your repository name here
   plugins: [
     vue(),
     //... other plugins
