@@ -1,20 +1,10 @@
-const { createApp, ref, computed } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
+
+const backendUrl = 'http://localhost:8080';
 
 createApp({
     setup() {
-        // --- STATE ---
-        const lessons = ref([
-            { _id: '1', topic: 'Math', location: 'Hendon', price: 100, space: 5, image: 'maths_school.jpg' },
-            { _id: '2', topic: 'English', location: 'Colindale', price: 80, space: 5, image: 'english.jpg' },
-            { _id: '3', topic: 'Physics', location: 'Brent Cross', price: 120, space: 5, image: 'physics.jpg' },
-            { _id: '4', topic: 'Chemistry', location: 'Golders Green', price: 95, space: 5, image: 'chemistry.jpg' },
-            { _id: '5', topic: 'Biology', location: 'Edgware', price: 110, space: 5, image: 'biology.jpg' },
-            { _id: '6', topic: 'Art', location: 'Finchley', price: 75, space: 5, image: 'art.jpg' },
-            { _id: '7', topic: 'History', location: 'Wembley', price: 90, space: 5, image: 'history.jpg' },
-            { _id: '8', topic: 'Geography', location: 'Harrow', price: 85, space: 5, image: 'geography.jpg' },
-            { _id: '9', topic: 'Music', location: 'Camden', price: 130, space: 5, image: 'music.png'},
-            { _id: '10', topic: 'PE', location: 'Islington', price: 60, space: 5, image: 'pe.jpg' },
-        ]);
+        const lessons = ref([]);
         const cart = ref([]);
         const showLessons = ref(true);
         const addedToCartMessage = ref('');
@@ -27,8 +17,31 @@ createApp({
         const lastName = ref('');
         const phoneNumber = ref('');
         const checkoutMessage = ref('');
+        const serverErrors = ref([]); 
 
-        // --- COMPUTED PROPERTIES ---
+        const fetchLessons = async () => {
+            try {
+                const response = await fetch(backendUrl + '/lessons');
+                if (!response.ok) {
+                    throw new Error('Could not fetch lessons from server.');
+                }
+                let data = await response.json();
+                
+                data.forEach(lesson => {
+                    lesson.image = `${backendUrl}/images/${lesson.image}`;
+                });
+
+                lessons.value = data;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                serverErrors.value = [error.message];
+            }
+        };
+
+        onMounted(() => {
+            fetchLessons();
+        });
+
         const filteredLessons = computed(() => {
             if (!searchQuery.value) return lessons.value;
             const query = searchQuery.value.toLowerCase();
@@ -62,7 +75,6 @@ createApp({
                    !isPhoneNumberInvalid.value;
         });
 
-        // --- METHODS ---
         const startMessageProgress = () => {
             const duration = 3000;
             const interval = 50;
@@ -81,9 +93,12 @@ createApp({
         const addToCart = (lesson) => {
             if (lesson.space > 0) {
                 const cartItem = cart.value.find(item => item._id === lesson._id);
-                if (cartItem) cartItem.quantity++;
-                else cart.value.push({ ...lesson, quantity: 1 });
-                lesson.space--;
+                if (cartItem) {
+                    cartItem.quantity++;
+                } else {
+                    cart.value.push({ ...lesson, quantity: 1 });
+                }
+                lesson.space--; 
                 addedToCartMessage.value = `${lesson.topic} was added to your cart!`;
                 startMessageProgress();
             }
@@ -93,28 +108,84 @@ createApp({
             const index = cart.value.indexOf(cartItem);
             if (index > -1) {
                 const lesson = lessons.value.find(l => l._id === cartItem._id);
-                if (lesson) lesson.space += cartItem.quantity;
-                cart.value.splice(index, 1);
+                if (lesson) {
+                    lesson.space += cartItem.quantity; 
+                }
+                cart.value.splice(index, 1); 
             }
         };
 
-        const checkout = () => {
-            if (isFormValid.value) {
-                console.log('Order Submitted:', {
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    phone: phoneNumber.value,
-                    items: cart.value.map(i => ({id: i._id, qty: i.quantity}))
+        const checkout = async () => {
+            if (!isFormValid.value) return;
+
+            console.log('Starting checkout...');
+            serverErrors.value = []; 
+
+            const orderDetails = {
+                firstName: firstName.value,
+                lastName: lastName.value,
+                phoneNumber: phoneNumber.value,
+                items: cart.value.map(item => ({
+                    lessonId: item._id,
+                    quantity: item.quantity,
+                    topic: item.topic 
+                }))
+            };
+
+            try {
+                const postResponse = await fetch(backendUrl + '/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderDetails)
                 });
-                cart.value.forEach(cartItem => {
-                    const lesson = lessons.value.find(l => l._id === cartItem._id);
-                    if (lesson) lesson.space += cartItem.quantity;
+
+                if (!postResponse.ok) {
+                    const errorBody = await postResponse.json();
+                    throw new Error(`Failed to submit order: ${errorBody.error}`);
+                }
+                
+                await postResponse.json();
+                console.log('Order submitted successfully');
+
+                const updatePromises = cart.value.map(item => {
+                    const newSpace = item.space; 
+                    
+                    return fetch(backendUrl + '/lessons/' + item._id, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ space: newSpace })
+                    });
                 });
+                
+                const updateResponses = await Promise.all(updatePromises);
+                
+                for (const res of updateResponses) {
+                    if (!res.ok) {
+                        const errorBody = await res.json();
+                        throw new Error(`Failed to update lesson space: ${errorBody.error}`);
+                    }
+                }
+                console.log('All lesson spaces updated');
+
                 cart.value = [];
                 firstName.value = '';
                 lastName.value = '';
                 phoneNumber.value = '';
                 checkoutMessage.value = 'Order submitted successfully!';
+                setTimeout(() => checkoutMessage.value = '', 5000);
+
+            } catch (error) {
+                console.error('Checkout failed:', error);
+                serverErrors.value = [error.message];
+                checkoutMessage.value = 'Checkout failed. Please try again.';
+                
+                cart.value.forEach(cartItem => {
+                    const lesson = lessons.value.find(l => l._id === cartItem._id);
+                    if (lesson) {
+                        lesson.space += cartItem.quantity;
+                    }
+                });
+                
                 setTimeout(() => checkoutMessage.value = '', 5000);
             }
         };
@@ -125,7 +196,9 @@ createApp({
             firstName, lastName, phoneNumber, checkoutMessage,
             filteredLessons, sortedLessons,
             isFirstNameInvalid, isLastNameInvalid, isPhoneNumberInvalid, isFormValid,
-            addToCart, removeFromCart, checkout
+            serverErrors, 
+            addToCart, removeFromCart, checkout,
+            backendUrl 
         };
     }
 }).mount('#app');
