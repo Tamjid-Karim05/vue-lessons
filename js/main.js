@@ -1,4 +1,4 @@
-const { createApp, ref, computed, onMounted } = Vue;
+const { createApp, ref, computed, onMounted, watch } = Vue;
 
 const backendUrl = 'http://localhost:8080';
 
@@ -38,14 +38,34 @@ createApp({
             }
         };
 
+        watch(searchQuery, async (newQuery) => {
+            if (newQuery.trim() === '') {
+                fetchLessons(); 
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${backendUrl}/lessons/search?q=${newQuery}`);
+                if (!response.ok) throw new Error('Search failed');
+                
+                let data = await response.json();
+
+                data.forEach(lesson => {
+                    lesson.image = `${backendUrl}/images/${lesson.image}`;
+                });
+
+                lessons.value = data; 
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        });
+
         onMounted(() => {
             fetchLessons();
         });
 
         const filteredLessons = computed(() => {
-            if (!searchQuery.value) return lessons.value;
-            const query = searchQuery.value.toLowerCase();
-            return lessons.value.filter(l => l.topic.toLowerCase().includes(query) || l.location.toLowerCase().includes(query));
+            return lessons.value; 
         });
 
         const sortedLessons = computed(() => {
