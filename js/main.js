@@ -1,6 +1,6 @@
 const { createApp, ref, computed, onMounted, watch } = Vue;
 
-const backendUrl = ' https://express-lessons-api-6hj1.onrender.com';
+const backendUrl = 'https://express-lessons-api-6hj1.onrender.com';
 
 createApp({
     setup() {
@@ -167,24 +167,19 @@ createApp({
                 await postResponse.json();
                 console.log('Order submitted successfully');
 
-                const updatePromises = cart.value.map(item => {
-                    const newSpace = item.space; 
+                const updatePromises = cart.value.map(cartItem => {
+                    const lesson = lessons.value.find(l => l._id === cartItem._id);
                     
-                    return fetch(backendUrl + '/lessons/' + item._id, {
+                    const newSpace = lesson ? lesson.space : cartItem.space;
+                    
+                    return fetch(backendUrl + '/lessons/' + cartItem._id, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ space: newSpace })
                     });
                 });
                 
-                const updateResponses = await Promise.all(updatePromises);
-                
-                for (const res of updateResponses) {
-                    if (!res.ok) {
-                        const errorBody = await res.json();
-                        throw new Error(`Failed to update lesson space: ${errorBody.error}`);
-                    }
-                }
+                await Promise.all(updatePromises);
                 console.log('All lesson spaces updated');
 
                 cart.value = [];
