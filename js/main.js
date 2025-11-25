@@ -1,6 +1,6 @@
 const { createApp, ref, computed, onMounted, watch } = Vue;
 
-const backendUrl = 'https://express-lessons-api-6hj1.onrender.com';
+const backendUrl = 'https://express-lessons-api-6hj1.onrender.com'; 
 
 createApp({
     setup() {
